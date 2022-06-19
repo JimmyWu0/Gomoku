@@ -55,31 +55,20 @@ public:
     int winner;
     //new
     node(std::array<std::array<int, SIZE>, SIZE> board){
-        //int cnt0=0,cnt1=0,cnt2=0;
         int empty=0;
         for(int i=0;i<15;i++){
             for(int j=0;j<15;j++){
                 this->board[i][j]=board[i][j];
                 if(board[i][j]==EMPTY){
                 	empty++;
-                	//next_valid_spots.push_back(Point(i,j));  //??
+                	//next_valid_spots.push_back(Point(i,j));  //
 				}
-                /*else if(board[i][j]==BLACK)
-                cnt1++;
-                else if(board[i][j]==WHITE)
-                cnt2++;*/
             }
         }
         cur_player=root_player;
         done=false;
         winner=-1;
         next_valid_spots=get_valid_spots();  //!!new
-        /*for(int i=0;i<root_next_valid_spots.size();i++){
-            next_valid_spots.push_back(root_next_valid_spots[i]);
-        }*/
-        /*disc_count[0]=cnt0;
-        disc_count[1]=cnt1;
-        disc_count[2]=cnt2;*/
         empty_count=empty;
     }
 
@@ -92,8 +81,6 @@ public:
         for(int i=0;i<cmp.next_valid_spots.size();i++){  //auto
             next_valid_spots.push_back(cmp.next_valid_spots[i]);
         }
-        /*for(int i=0;i<3;i++)
-        disc_count[i]=cmp.disc_count[i];*/
         empty_count=cmp.empty_count;
         cur_player=cmp.cur_player;
         done=cmp.done;
@@ -120,22 +107,9 @@ public:
             return false;
         return true;
     }
-    bool is_spot_valid(Point center) const {  //should be modified, can save some time(?
+    bool is_spot_valid(Point center) const {  //
         if (get_disc(center) != EMPTY)
             return false;
-        /*int flag=0;
-        for(Point dir : directions)
-        {
-        	Point p=center+dir;
-        	if(get_disc(p)==cur_player)
-        	{
-        		flag=1;
-        		break;
-			}
-		}
-		if(flag)
-        	return true;
-        else return false;*/
         return true;
     }
     
@@ -149,21 +123,6 @@ public:
                 if (board[i][j] != EMPTY)
                     continue;
                 if (is_spot_valid(p))  //can be deleted
-                /*{
-                	if(cur_player==)
-                	int flag=0;
-        			for(Point dir : directions)
-        			{
-        				Point pt=p+dir;
-        				if(get_disc(pt)==cur_player)
-        				{
-        					flag=1;
-        					break;
-						}
-					}
-					if(flag)
-        				valid_spots.push_back(p);
-				}*/
             		valid_spots.push_back(p);
             }
         }
@@ -187,7 +146,6 @@ public:
             done = true;
             winner = EMPTY;
         }
-
         // Give control to the other player.
         //cur_player = get_next_player(cur_player);     //!!!!!
         next_valid_spots = get_valid_spots();  //new
@@ -241,114 +199,370 @@ public:
     double evaluate(){
     	double state_value=0;
     	int next_player=get_next_player(cur_player);  //opponent
-        if(checkwin(cur_player))
-        	state_value+=5000000;  //!!
-        //
-        for(int t=1;t<=3;t++){
-        	for (int i = 0; i < SIZE; i++) {
-            	for (int j = 0; j < SIZE; j++) {
-                	if (is_disc_at(Point(i, j), cur_player)){
-                    	bool iswin = true;
-                    	if (i + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i+k, j), cur_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value+=std::pow(2,t*t/2);
-                    	}
-                    	iswin = true;
-                    	if (j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i, j+k), cur_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value+=std::pow(2,t*t/2);
-                    	}
-                    	iswin = true;
-                    	if (i + t < SIZE && j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i+k, j+k), cur_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value+=std::pow(2,t*t/2);
-                    	}
-                    	iswin = true;
-                    	if (i - t >= 0 && j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i-k, j+k), cur_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value+=std::pow(2,t*t/2);
-                    	}
-                	}
-            	}
-        	}
-		}
-        if(checkwin(next_player))
-        	state_value-=5000000;  //
-        //
-        for(int t=1;t<=3;t++){
-        	for (int i = 0; i < SIZE; i++) {
-            	for (int j = 0; j < SIZE; j++) {
-                	if (is_disc_at(Point(i, j), next_player)){
-                    	bool iswin = true;
-                    	if (i + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i+k, j), next_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value-=std::pow(2,t*t);
-                    	}
-                    	iswin = true;
-                    	if (j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i, j+k), next_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value-=std::pow(2,t*t);
-                    	}
-                    	iswin = true;
-                    	if (i + t < SIZE && j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i+k, j+k), next_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value-=std::pow(2,t*t);
-                    	}
-                    	iswin = true;
-                    	if (i - t >= 0 && j + t < SIZE) {
-                        	for(int k = 0; k < t+1; k++)
-                            	if (!is_disc_at(Point(i-k, j+k), next_player)) {
-                                	iswin = false;
-                                	break;
-                            	}
-                        	if (iswin) state_value-=std::pow(2,t*t);
-                    	}
-                	}
-            	}
-        	}
-		}
-		for(int i=0;i<SIZE;i++)
-		{
-			for(int j=0;j<SIZE;j++)
-			{
-				if(get_disc(Point(i,j))==cur_player)
-					state_value+=7-std::max(std::abs(i-7),std::abs(j-7));
-			    else if(get_disc(Point(i,j))==get_next_player(cur_player))
-					state_value-=7-std::max(std::abs(i-7),std::abs(j-7));
+        for(int i=0;i<SIZE;i++)
+        {
+        	for(int j=0;j<SIZE;j++)
+        	{
+        		if (is_disc_at(Point(i, j), cur_player))
+        		{
+        			//0
+        			if(!is_disc_at(Point(i-1, j), cur_player))
+        			{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j), cur_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j), EMPTY) && is_disc_at(Point(i+len, j), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value+=5;
+							else if(len==2)
+								state_value+=100;
+							else if(len==3)
+								state_value+=50000;
+							else if(len==4)
+								state_value+=1000000;
+							else if(len==5)
+								state_value+=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j), next_player) || is_disc_at(Point(i+len, j), next_player) || (!is_spot_on_board(Point(i-1, j))) || (!is_spot_on_board(Point(i+len, j))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j), next_player)) cnt++;
+							if(is_disc_at(Point(i+len, j), next_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value+=0;  //1
+								else if(len==2)
+									state_value+=10;
+								else if(len==3)
+									state_value+=100;
+								else if(len==4)
+									state_value+=100;
+								else if(len==5)
+									state_value+=0;  //100
+							}
+						}
+					}
+					//1
+					if(!is_disc_at(Point(i, j-1), cur_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i, j+len), cur_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i, j-1), EMPTY) && is_disc_at(Point(i, j+len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value+=5;
+							else if(len==2)
+								state_value+=100;
+							else if(len==3)
+								state_value+=50000;
+							else if(len==4)
+								state_value+=1000000;
+							else if(len==5)
+								state_value+=5000000;
+						}
+						else //if(is_disc_at(Point(i, j-1), next_player) || is_disc_at(Point(i, j+len), next_player) || (!is_spot_on_board(Point(i, j-1))) || (!is_spot_on_board(Point(i, j+len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i, j-1), next_player)) cnt++;
+							if(is_disc_at(Point(i, j+len), next_player)) cnt++;
+							if(!is_spot_on_board(Point(i, j-1))) cnt++;
+							if(!is_spot_on_board(Point(i, j+len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value+=0;  //1
+								else if(len==2)
+									state_value+=10;
+								else if(len==3)
+									state_value+=100;
+								else if(len==4)
+									state_value+=100;
+								else if(len==5)
+									state_value+=0;  //100
+							}
+						}
+					}
+					//2
+					if(!is_disc_at(Point(i-1, j-1), cur_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j+len), cur_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j-1), EMPTY) && is_disc_at(Point(i+len, j+len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value+=5;
+							else if(len==2)
+								state_value+=100;
+							else if(len==3)
+								state_value+=50000;
+							else if(len==4)
+								state_value+=1000000;
+							else if(len==5)
+								state_value+=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j-1), next_player) || is_disc_at(Point(i+len, j+len), next_player) || (!is_spot_on_board(Point(i-1, j-1))) || (!is_spot_on_board(Point(i+len, j+len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j-1), next_player)) cnt++;
+							if(is_disc_at(Point(i+len, j+len), next_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j-1))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j+len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value+=0;  //1
+								else if(len==2)
+									state_value+=10;
+								else if(len==3)
+									state_value+=100;
+								else if(len==4)
+									state_value+=100;
+								else if(len==5)
+									state_value+=0;  //100
+							}
+						}
+					}
+					//3
+					if(!is_disc_at(Point(i-1, j+1), cur_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j-len), cur_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j+1), EMPTY) && is_disc_at(Point(i+len, j-len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value+=5;
+							else if(len==2)
+								state_value+=100;
+							else if(len==3)
+								state_value+=50000;
+							else if(len==4)
+								state_value+=1000000;
+							else if(len==5)
+								state_value+=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j+1), next_player) || is_disc_at(Point(i+len, j-len), next_player) || (!is_spot_on_board(Point(i-1, j+1))) || (!is_spot_on_board(Point(i+len, j-len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j+1), next_player)) cnt++;
+							if(is_disc_at(Point(i+len, j-len), next_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j+1))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j-len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value+=0;  //1
+								else if(len==2)
+									state_value+=10;
+								else if(len==3)
+									state_value+=100;
+								else if(len==4)
+									state_value+=100;
+								else if(len==5)
+									state_value+=0;  //100
+							}
+						}
+					}
+				}
+				else if(is_disc_at(Point(i, j), next_player))
+				{
+					//00
+        			if(!is_disc_at(Point(i-1, j), next_player))
+        			{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j), next_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j), EMPTY) && is_disc_at(Point(i+len, j), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value-=0;
+							else if(len==2)
+								state_value-=120;
+							else if(len==3)
+								state_value-=100000;
+							else if(len==4)
+								state_value-=5000000;
+							else if(len==5)
+								state_value-=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j), cur_player) || is_disc_at(Point(i+len, j), cur_player) || (!is_spot_on_board(Point(i-1, j))) || (!is_spot_on_board(Point(i+len, j))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j), cur_player)) cnt++;
+							if(is_disc_at(Point(i+len, j), cur_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value-=0;
+								else if(len==2)
+									state_value-=50;
+								else if(len==3)
+									state_value-=1000;
+								else if(len==4)
+									state_value-=5000000;
+								else if(len==5)
+									state_value-=0;
+							}
+						}
+					}
+					//11
+					if(!is_disc_at(Point(i, j-1), next_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i, j+len), next_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i, j-1), EMPTY) && is_disc_at(Point(i, j+len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value-=0;
+							else if(len==2)
+								state_value-=120;
+							else if(len==3)
+								state_value-=100000;
+							else if(len==4)
+								state_value-=5000000;
+							else if(len==5)
+								state_value-=5000000;
+						}
+						else //if(is_disc_at(Point(i, j-1), cur_player) || is_disc_at(Point(i, j+len), cur_player) || (!is_spot_on_board(Point(i, j-1))) || (!is_spot_on_board(Point(i, j+len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i, j-1), cur_player)) cnt++;
+							if(is_disc_at(Point(i, j+len), cur_player)) cnt++;
+							if(!is_spot_on_board(Point(i, j-1))) cnt++;
+							if(!is_spot_on_board(Point(i, j+len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value-=0;
+								else if(len==2)
+									state_value-=50;
+								else if(len==3)
+									state_value-=1000;
+								else if(len==4)
+									state_value-=5000000;
+								else if(len==5)
+									state_value-=0;
+							}
+						}
+					}
+					//22
+					if(!is_disc_at(Point(i-1, j-1), next_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j+len), next_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j-1), EMPTY) && is_disc_at(Point(i+len, j+len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value-=0;
+							else if(len==2)
+								state_value-=120;
+							else if(len==3)
+								state_value-=100000;
+							else if(len==4)
+								state_value-=5000000;
+							else if(len==5)
+								state_value-=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j-1), cur_player) || is_disc_at(Point(i+len, j+len), cur_player) || (!is_spot_on_board(Point(i-1, j-1))) || (!is_spot_on_board(Point(i+len, j+len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j-1), cur_player)) cnt++;
+							if(is_disc_at(Point(i+len, j+len), cur_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j-1))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j+len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value-=0;
+								else if(len==2)
+									state_value-=50;
+								else if(len==3)
+									state_value-=1000;
+								else if(len==4)
+									state_value-=5000000;
+								else if(len==5)
+									state_value-=0;
+							}
+						}
+					}
+					//33
+					if(!is_disc_at(Point(i-1, j+1), next_player))
+					{
+        				int len=0;
+        				while(is_disc_at(Point(i+len, j-len), next_player))
+        				{
+        					len++;
+						}
+						if(is_disc_at(Point(i-1, j+1), EMPTY) && is_disc_at(Point(i+len, j-len), EMPTY))  //double empty
+						{
+							if(len==1)
+								state_value-=0;
+							else if(len==2)
+								state_value-=120;
+							else if(len==3)
+								state_value-=100000;
+							else if(len==4)
+								state_value-=5000000;
+							else if(len==5)
+								state_value-=5000000;
+						}
+						else //if(is_disc_at(Point(i-1, j+1), cur_player) || is_disc_at(Point(i+len, j-len), cur_player) || (!is_spot_on_board(Point(i-1, j+1))) || (!is_spot_on_board(Point(i+len, j-len))))
+						//one dead
+						{
+							int cnt=0;
+							if(is_disc_at(Point(i-1, j+1), cur_player)) cnt++;
+							if(is_disc_at(Point(i+len, j-len), cur_player)) cnt++;
+							if(!is_spot_on_board(Point(i-1, j+1))) cnt++;
+							if(!is_spot_on_board(Point(i+len, j-len))) cnt++;
+							if(cnt<=1)
+							{
+								if(len==1)
+									state_value-=0;
+								else if(len==2)
+									state_value-=50;
+								else if(len==3)
+									state_value-=1000;
+								else if(len==4)
+									state_value-=5000000;
+								else if(len==5)
+									state_value-=0;
+							}
+						}
+					}
+				}
 			}
 		}
-		/*if(get_disc(Point(7,7))==cur_player)
-			state_value+=1;
-		else if(get_disc(Point(7,7))==get_next_player(cur_player))
-			state_value-=1;*/
         return state_value;
 	}
 };
@@ -424,10 +638,16 @@ int main(int, char** argv) {
     	fout << 7 << " " << 7 << std::endl;  //final decision
         fout.flush();
 	}
-	else
+	else if(cur_state.board[7][7]!=0)
 	{
 		cur_state.put_disc(Point(6,6));
     	fout << 6 << " " << 6 << std::endl;  //final decision
+        fout.flush();
+	}
+	else
+	{
+		cur_state.put_disc(Point(7,7));
+    	fout << 7 << " " << 7 << std::endl;  //final decision
         fout.flush();
 	}
     
